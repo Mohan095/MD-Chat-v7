@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MD Chat v7 — Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    .admin-main {
+      flex: 1;
+      overflow: auto;
+      padding: 20px 24px;
+      background: var(--chat-bg);
+      background-image: var(--chat-pattern);
+      background-size: 160px 160px;
+    }
+    .admin-card {
+      background: var(--app-bg);
+      border: 1px solid var(--sidebar-border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: var(--bubble-shadow);
+      margin-bottom: 18px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .stat-box {
+      background: var(--app-bg);
+      border: 1px solid var(--sidebar-border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: var(--bubble-shadow);
+    }
+    .stat-box strong {
+      display: block;
+      font-size: 24px;
+      color: var(--accent);
+    }
+    .stat-box span {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .admin-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .tab-row,
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .tab-btn {
+      border: 1px solid var(--sidebar-border);
+      background: var(--app-bg);
+      color: var(--text-main);
+      border-radius: 999px;
+      padding: 7px 15px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+    .admin-search {
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--text-main);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 14px;
+      min-width: 220px;
+      outline: none;
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .admin-table th,
+    .admin-table td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--sidebar-border);
+      vertical-align: top;
+    }
+    .admin-table th {
+      color: var(--accent);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .files-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .file-card {
+      border: 1px solid var(--sidebar-border);
+      background: var(--head-bg);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .file-thumb {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 8px;
+      background: var(--app-bg);
+    }
+    .file-badge {
+      display: inline-block;
+      align-self: flex-start;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+    .file-name {
+      font-weight: 700;
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+    .file-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .file-open {
+      align-self: flex-start;
+      text-decoration: none;
+      background: var(--accent);
+      color: #ffffff;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .back-link {
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M12 2a9.93 9.93 0 0 0-8.48 15.13L2 22l5.02-1.46A9.93 9.93 0 1 0 12 2zm0 18a8.06 8.06 0 0 1-4.12-1.13l-.3-.17-2.98.87.89-2.9-.19-.31A8 8 0 1 1 12 20z"/>
+          </svg>
+        </div>
+        <div>
+          <h1>MD Chat <span class="version-badge">v7 Admin</span></h1>
+          <p>Users, Chats, Images, Word &amp; PDF Files</p>
+        </div>
+      </div>
+      <div class="top-controls">
+        <button id="themeToggle" class="theme-btn" type="button">
+          <span id="themeIcon" class="theme-icon" aria-hidden="true"></span>
+          <span id="themeLabel">Dark</span>
+        </button>
+        <a href="/" class="login-btn back-link">Back to Chat</a>
+      </div>
+    </header>
+
+    <section id="adminDenied" class="admin-main" hidden>
+      <div class="admin-card">
+        <h2>Admin Access Required</h2>
+        <p>Please login on the chat page with username <strong>admin</strong> and email <strong>admin@gmail.com</strong>.</p>
+        <a href="/" class="file-open">Go to Login</a>
+      </div>
+    </section>
+
+    <section id="adminContent" class="admin-main" hidden>
+      <div class="stats-grid">
+        <div class="stat-box"><strong id="statUsers">0</strong><span>Total Users</span></div>
+        <div class="stat-box"><strong id="statChats">0</strong><span>Total Messages</span></div>
+        <div class="stat-box"><strong id="statImages">0</strong><span>Images</span></div>
+        <div class="stat-box"><strong id="statDocs">0</strong><span>Word / PDF / TXT</span></div>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-toolbar">
+          <div class="tab-row">
+            <button type="button" class="tab-btn active" data-tab="users">Users</button>
+            <button type="button" class="tab-btn" data-tab="chats">User Chats</button>
+            <button type="button" class="tab-btn" data-tab="files">Files (Image / Word / PDF)</button>
+          </div>
+          <input id="adminSearch" class="admin-search" type="search" placeholder="Search name, email, message, file…">
+        </div>
+
+        <div id="tabUsers">
+          <table class="admin-table">
+            <thead>
+              <tr><th>User Name</th><th>Email</th><th>Messages</th><th>Last Seen</th></tr>
+            </thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+
+        <div id="tabChats" hidden>
+          <table class="admin-table">
+            <thead>
+              <tr><th>Date &amp; Time</th><th>User</th><th>Email</th><th>Message</th><th>Attachment</th></tr>
+            </thead>
+            <tbody id="chatsBody"></tbody>
+          </table>
+        </div>
+
+        <div id="tabFiles" hidden>
+          <div class="filter-row" style="margin-bottom: 14px;">
+            <button type="button" class="tab-btn active" data-cat="all">All</button>
+            <button type="button" class="tab-btn" data-cat="image">Images</button>
+            <button type="button" class="tab-btn" data-cat="word">Word (DOC/DOCX)</button>
+            <button type="button" class="tab-btn" data-cat="pdf">PDF</button>
+            <button type="button" class="tab-btn" data-cat="txt">TXT</button>
+          </div>
+          <div id="filesGrid" class="files-grid"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const MOON_SVG = `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+    const SUN_SVG = `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`;
+
+    const themeToggle = document.getElementById("themeToggle");
+    const themeIcon = document.getElementById("themeIcon");
+    const themeLabel = document.getElementById("themeLabel");
+
+    function applyTheme(theme) {
+      const isDark = theme === "dark";
+      document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+      themeIcon.innerHTML = isDark ? SUN_SVG : MOON_SVG;
+      themeLabel.textContent = isDark ? "Light" : "Dark";
+      localStorage.setItem("txtchat_theme", isDark ? "dark" : "light");
+    }
+    applyTheme(localStorage.getItem("txtchat_theme") || "light");
+    themeToggle.addEventListener("click", () => {
+      applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark");
+    });
+
+    const name = (localStorage.getItem("txtchat_name") || "").trim().toLowerCase();
+    const email = (localStorage.getItem("txtchat_email") || "").trim().toLowerCase();
+    const adminDenied = document.getElementById("adminDenied");
+    const adminContent = document.getElementById("adminContent");
+
+    let adminData = { users: [], chats: [], files: [] };
+    let activeTab = "users";
+    let activeCat = "all";
+
+    if (name !== "admin" || email !== "admin@gmail.com") {
+      adminDenied.hidden = false;
+    } else {
+      adminContent.hidden = false;
+      loadAdminData();
+    }
+
+    async function loadAdminData() {
+      const res = await fetch("/api/admin/data");
+      adminData = await res.json();
+      document.getElementById("statUsers").textContent = adminData.users.length;
+      document.getElementById("statChats").textContent = adminData.chats.length;
+      document.getElementById("statImages").textContent = adminData.files.filter(f => f.category === "image").length;
+      document.getElementById("statDocs").textContent = adminData.files.filter(f => f.category !== "image").length;
+      renderAll();
+    }
+
+    function renderAll() {
+      const q = document.getElementById("adminSearch").value.trim().toLowerCase();
+
+      const usersBody = document.getElementById("usersBody");
+      usersBody.innerHTML = "";
+      adminData.users
+        .filter(u => !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
+        .forEach(u => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td><strong>${escapeHtml(u.name)}</strong></td><td>${escapeHtml(u.email)}</td><td>${u.messages}</td><td>${escapeHtml(u.last_seen || "—")}</td>`;
+          usersBody.appendChild(tr);
+        });
+
+      const chatsBody = document.getElementById("chatsBody");
+      chatsBody.innerHTML = "";
+      adminData.chats
+        .filter(c => !q || c.sender.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || (c.message || "").toLowerCase().includes(q))
+        .forEach(c => {
+          const tr = document.createElement("tr");
+          const attHtml = c.attachment ? `<a href="${escapeHtml(c.attachment.url)}" target="_blank" rel="noopener">${escapeHtml(c.attachment.name)}</a>` : "—";
+          tr.innerHTML = `<td>${escapeHtml(c.day)}<br><small>${escapeHtml((c.time || "").slice(11, 16))}</small></td><td><strong>${escapeHtml(c.sender)}</strong></td><td>${escapeHtml(c.email)}</td><td>${escapeHtml(c.message || "—")}${c.edited ? " <em>(edited)</em>" : ""}</td><td>${attHtml}</td>`;
+          chatsBody.appendChild(tr);
+        });
+
+      const filesGrid = document.getElementById("filesGrid");
+      filesGrid.innerHTML = "";
+      adminData.files
+        .filter(f => (activeCat === "all" || f.category === activeCat) && (!q || f.name.toLowerCase().includes(q) || f.sender.toLowerCase().includes(q) || f.email.toLowerCase().includes(q)))
+        .forEach(f => {
+          const card = document.createElement("div");
+          card.className = "file-card";
+          if (f.category === "image") {
+            const img = document.createElement("img");
+            img.className = "file-thumb";
+            img.src = f.url;
+            img.alt = f.name;
+            card.appendChild(img);
+          }
+          const badge = document.createElement("span");
+          badge.className = "file-badge";
+          badge.textContent = f.category;
+          const fname = document.createElement("div");
+          fname.className = "file-name";
+          fname.textContent = f.name;
+          const meta = document.createElement("div");
+          meta.className = "file-meta";
+          meta.textContent = `${f.sender} (${f.email}) • ${f.day}`;
+          const link = document.createElement("a");
+          link.className = "file-open";
+          link.href = f.url;
+          link.target = "_blank";
+          link.rel = "noopener";
+          link.textContent = "Open / Download";
+          card.append(badge, fname, meta, link);
+          filesGrid.appendChild(card);
+        });
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, s => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[s]));
+    }
+
+    document.querySelectorAll("[data-tab]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        activeTab = btn.getAttribute("data-tab");
+        document.querySelectorAll("[data-tab]").forEach(b => b.classList.toggle("active", b === btn));
+        document.getElementById("tabUsers").hidden = activeTab !== "users";
+        document.getElementById("tabChats").hidden = activeTab !== "chats";
+        document.getElementById("tabFiles").hidden = activeTab !== "files";
+      });
+    });
+
+    document.querySelectorAll("[data-cat]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        activeCat = btn.getAttribute("data-cat");
+        document.querySelectorAll("[data-cat]").forEach(b => b.classList.toggle("active", b === btn));
+        renderAll();
+      });
+    });
+
+    document.getElementById("adminSearch").addEventListener("input", renderAll);
+  </script>
+</body>
+</html>
