@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MD Chat v7</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M12 2a9.93 9.93 0 0 0-8.48 15.13L2 22l5.02-1.46A9.93 9.93 0 1 0 12 2zm0 18a8.06 8.06 0 0 1-4.12-1.13l-.3-.17-2.98.87.89-2.9-.19-.31A8 8 0 1 1 12 20zm4.39-5.99c-.24-.12-1.42-.7-1.64-.78-.22-.08-.38-.12-.54.12-.16.24-.62.78-.76.94-.14.16-.28.18-.52.06a6.56 6.56 0 0 1-1.93-1.19 7.26 7.26 0 0 1-1.34-1.67c-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.2-.47-.4-.4-.54-.41h-.46c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.69 2.58 4.1 3.62.57.25 1.02.4 1.37.51.58.18 1.1.16 1.52.1.46-.07 1.42-.58 1.62-1.14.2-.56.2-1.04.14-1.14-.06-.1-.22-.16-.46-.28z"/>
+          </svg>
+        </div>
+        <div>
+          <h1>MD Chat <span class="version-badge">v7</span></h1>
+          <p>Simple daily chat history</p>
+        </div>
+      </div>
+      <div class="top-controls">
+        <button id="themeToggle" class="theme-btn" type="button" title="Switch Light / Dark theme" aria-label="Switch theme">
+          <span id="themeIcon" class="theme-icon" aria-hidden="true"></span>
+          <span id="themeLabel">Dark</span>
+        </button>
+        <button id="addFriendBtn" class="theme-btn" type="button" title="Add Friend">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="8.5" cy="7" r="4"/>
+            <line x1="20" y1="8" x2="20" y2="14"/>
+            <line x1="23" y1="11" x2="17" y2="11"/>
+          </svg>
+          <span class="btn-label">Add Friend</span>
+        </button>
+        <button id="settingsOpenBtn" class="theme-btn" type="button" title="Settings">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <span class="btn-label">Settings</span>
+        </button>
+        <a id="adminLinkBtn" href="admin.html" class="theme-btn admin-nav-btn" hidden>
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2l7 4v6c0 5-3.5 9.74-7 10-3.5-.26-7-5-7-10V6l7-4z"/>
+          </svg>
+          <span class="btn-label">Admin</span>
+        </a>
+        <button id="loginOpenBtn" class="login-btn" type="button">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+            <polyline points="10 17 15 12 10 7"/>
+            <line x1="15" y1="12" x2="3" y2="12"/>
+          </svg>
+          <span>Login</span>
+        </button>
+        <button id="profileOpenBtn" class="profile-btn" type="button" hidden>
+          <span id="profileAvatarSmall" class="profile-avatar-sm">U</span>
+          <span id="profileNameLabel">User</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="chat-panel">
+      <aside class="history">
+        <div class="friends-section">
+          <div class="history-title">
+            <h2>Chats &amp; Friends</h2>
+          </div>
+          <div id="friendsList" class="friends-list"></div>
+        </div>
+        <div class="history-title">
+          <h2>Chat history</h2>
+          <button id="todayBtn" class="today-btn" type="button">Today</button>
+        </div>
+        <p class="hint">Choose a date to view that day's messages.</p>
+        <div id="days" class="days"></div>
+      </aside>
+
+      <section class="conversation">
+        <div class="conversation-head">
+          <div class="chat-title-wrap">
+            <div class="chat-avatar" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                <path d="M8 9h8M8 13h5"/>
+              </svg>
+            </div>
+            <div>
+              <h2 id="chatTitle">Everyone's chat</h2>
+              <p id="selectedDate">Loading…</p>
+            </div>
+          </div>
+          <span id="roomBadge" class="live-dot">Daily TXT storage</span>
+        </div>
+
+        <div id="selectionBar" class="selection-bar" hidden>
+          <span id="selectionCount">0 selected</span>
+          <div class="selection-actions">
+            <button id="copySelectedBtn" type="button" class="sel-btn">Copy</button>
+            <button id="deleteSelectedBtn" type="button" class="sel-btn danger">Delete</button>
+            <button id="cancelSelectBtn" type="button" class="sel-btn">Cancel</button>
+          </div>
+        </div>
+
+        <div id="messages" class="messages">
+          <div class="empty">Loading messages…</div>
+        </div>
+
+        <form id="chatForm" class="composer" enctype="multipart/form-data">
+          <div id="filePreview" class="file-preview"></div>
+          <div id="emojiPicker" class="emoji-picker" hidden></div>
+          <div class="compose-row">
+            <button type="button" id="emojiBtn" class="emoji-btn" title="Insert emoji" aria-label="Insert emoji">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                <line x1="9" y1="9" x2="9.01" y2="9"/>
+                <line x1="15" y1="9" x2="15.01" y2="9"/>
+              </svg>
+            </button>
+            <label class="attach" for="fileInput" title="Attach image, TXT, PDF, DOC or DOCX">
+              <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+              </svg>
+            </label>
+            <input id="fileInput" name="file" type="file" accept="image/*,.txt,.pdf,.doc,.docx" hidden>
+            <input id="messageInput" name="message" placeholder="Type a message…" maxlength="5000" autocomplete="off">
+            <button type="submit" id="sendBtn" title="Send message">
+              <span class="send-text">Send</span>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+              </svg>
+            </button>
+          </div>
+          <p class="small-note">Images, TXT, PDF, DOC and DOCX • Maximum 20 MB</p>
+        </form>
+      </section>
+    </section>
+
+    <footer>Messages are stored in a separate TXT file for each date.</footer>
+  </main>
+
+  <div id="loginModal" class="modal-backdrop" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle">
+      <div class="modal-head">
+        <h3 id="loginModalTitle">Login to MD Chat v7</h3>
+        <button type="button" class="modal-close" data-close="loginModal" aria-label="Close">✕</button>
+      </div>
+      <form id="loginForm" class="modal-body" novalidate>
+        <label class="modal-field">
+          <span>Username (minimum 3 letters)</span>
+          <input id="loginUsername" type="text" minlength="3" maxlength="40" placeholder="e.g. Mohan" required>
+        </label>
+        <label class="modal-field">
+          <span>Email (@gmail.com)</span>
+          <input id="loginEmail" type="email" maxlength="80" placeholder="e.g. mohan@gmail.com" required>
+        </label>
+        <p id="loginError" class="modal-error" hidden></p>
+        <div class="modal-actions">
+          <button type="submit" class="modal-primary">Login</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="profileModal" class="modal-backdrop" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+      <div class="modal-head">
+        <h3 id="profileModalTitle">My Profile</h3>
+        <button type="button" class="modal-close" data-close="profileModal" aria-label="Close">✕</button>
+      </div>
+      <form id="profileForm" class="modal-body" novalidate>
+        <div class="profile-hero">
+          <div class="profile-photo-col">
+            <div id="profileAvatarLarge" class="profile-avatar-lg">M</div>
+            <div class="profile-photo-actions">
+              <label for="profileImageInput" class="photo-btn">Photo</label>
+              <button type="button" id="removePhotoBtn" class="photo-btn subtle" hidden>Remove</button>
+              <input id="profileImageInput" type="file" accept="image/*" hidden>
+            </div>
+          </div>
+          <div class="profile-hero-info">
+            <div id="profileHeroName" class="profile-hero-name">User</div>
+            <div id="profileHeroEmail" class="profile-hero-email">user@gmail.com</div>
+            <div id="profileHeroBio" class="profile-hero-bio">Hey there! I am using MD Chat v7.</div>
+          </div>
+        </div>
+        <label class="modal-field">
+          <span>Name (minimum 3 letters)</span>
+          <input id="profileUsername" type="text" minlength="3" maxlength="40" required>
+        </label>
+        <label class="modal-field">
+          <span>Email (@gmail.com)</span>
+          <input id="profileEmail" type="email" maxlength="80" required>
+        </label>
+        <label class="modal-field">
+          <span>Bio</span>
+          <textarea id="profileAbout" rows="2" maxlength="140" placeholder="Write your bio…"></textarea>
+        </label>
+        <p id="profileError" class="modal-error" hidden></p>
+        <div class="modal-actions split">
+          <button type="button" id="logoutBtn" class="modal-danger">Logout</button>
+          <button type="submit" class="modal-primary">Save Profile</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="settingsModal" class="modal-backdrop" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+      <div class="modal-head">
+        <h3 id="settingsModalTitle">Settings</h3>
+        <button type="button" class="modal-close" data-close="settingsModal" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="setting-row">
+          <div>
+            <strong>Dark Theme</strong>
+            <p>Switch between White &amp; Green and Dark mode</p>
+          </div>
+          <label class="switch" aria-label="Dark Theme">
+            <input id="settingDarkToggle" type="checkbox">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong>Chat Wallpaper Pattern</strong>
+            <p>Show WhatsApp-style background icons</p>
+          </div>
+          <label class="switch" aria-label="Chat Wallpaper Pattern">
+            <input id="settingPatternToggle" type="checkbox" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong>Message Text Size</strong>
+            <p>Adjust chat font size (Times New Roman)</p>
+          </div>
+          <select id="settingFontSize" class="setting-select">
+            <option value="sm">Small</option>
+            <option value="md" selected>Medium</option>
+            <option value="lg">Large</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="modal-primary" data-close="settingsModal">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="addFriendModal" class="modal-backdrop" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="addFriendTitle">
+      <div class="modal-head">
+        <h3 id="addFriendTitle">Add Friend</h3>
+        <button type="button" class="modal-close" data-close="addFriendModal" aria-label="Close">✕</button>
+      </div>
+      <form id="addFriendForm" class="modal-body" novalidate>
+        <div class="registered-wrap">
+          <span class="registered-title">Logged-in / Registered Users (click to add)</span>
+          <div id="registeredUsersList" class="registered-list"></div>
+        </div>
+        <label class="modal-field">
+          <span>Friend Name (already logged-in user)</span>
+          <input id="friendNameInput" type="text" minlength="3" maxlength="40" placeholder="e.g. Mohan" required>
+        </label>
+        <label class="modal-field">
+          <span>Friend Email (@gmail.com, optional)</span>
+          <input id="friendEmailInput" type="email" maxlength="80" placeholder="e.g. mohan@gmail.com">
+        </label>
+        <p id="addFriendError" class="modal-error" hidden></p>
+        <div class="modal-actions">
+          <button type="submit" class="modal-primary">Add &amp; Chat</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
