@@ -1,3 +1,6 @@
+const API_BASE = window.MD_CHAT_API_BASE || "";
+const apiUrl = path => `${API_BASE}${path}`;
+
 const daysEl = document.getElementById("days");
 const messagesEl = document.getElementById("messages");
 const selectedDateEl = document.getElementById("selectedDate");
@@ -265,7 +268,7 @@ async function loadFriends() {
     renderFriends();
     return;
   }
-  const res = await fetch(`/api/friends?user=${encodeURIComponent(currentUser.name)}`);
+  const res = await fetch(apiUrl(`/api/friends?user=${encodeURIComponent(currentUser.name)}`));
   friendsList = await res.json();
   renderFriends();
 }
@@ -273,7 +276,7 @@ async function loadFriends() {
 async function submitAddFriend(fname, femail = "") {
   addFriendError.hidden = true;
   try {
-    const res = await fetch("/api/friends", {
+    const res = await fetch(apiUrl("/api/friends"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ user: currentUser.name, name: fname, email: femail })
@@ -292,7 +295,7 @@ async function submitAddFriend(fname, femail = "") {
 
 async function loadRegisteredUsers() {
   registeredUsersList.innerHTML = `<div class="registered-empty">Loading…</div>`;
-  const res = await fetch(`/api/users?exclude=${encodeURIComponent(currentUser.name)}`);
+  const res = await fetch(apiUrl(`/api/users?exclude=${encodeURIComponent(currentUser.name)}`));
   const users = await res.json();
   registeredUsersList.innerHTML = "";
   if (!users.length) {
@@ -372,7 +375,7 @@ loginForm.addEventListener("submit", async e => {
     return;
   }
   try {
-    const res = await fetch("/api/login", {
+    const res = await fetch(apiUrl("/api/login"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email })
@@ -595,7 +598,7 @@ deleteSelectedBtn.addEventListener("click", async () => {
 
 async function deleteIds(ids) {
   try {
-    const res = await fetch("/api/delete", {
+    const res = await fetch(apiUrl("/api/delete"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ day: selectedDay, room: activeRoom, ids })
@@ -611,7 +614,7 @@ async function deleteIds(ids) {
 
 async function saveEdit(id, newMessage) {
   try {
-    const res = await fetch("/api/edit", {
+    const res = await fetch(apiUrl("/api/edit"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -641,7 +644,7 @@ function timeLabel(iso) {
   return new Date(iso).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
 }
 async function loadDays() {
-  const response = await fetch(`/api/days?room=${encodeURIComponent(activeRoom)}`);
+  const response = await fetch(apiUrl(`/api/days?room=${encodeURIComponent(activeRoom)}`));
   const days = await response.json();
   if (!days.includes(selectedDay)) days.push(selectedDay);
   days.sort().reverse();
@@ -766,13 +769,13 @@ function addMessage(item) {
   if (item.attachment) {
     const link = document.createElement("a");
     link.className = "attachment";
-    link.href = item.attachment.url;
+    link.href = apiUrl(item.attachment.url);
     link.target = "_blank";
     link.rel = "noopener";
     link.download = item.attachment.name;
     if (item.attachment.type.startsWith("image/")) {
       const img = document.createElement("img");
-      img.src = item.attachment.url;
+      img.src = apiUrl(item.attachment.url);
       img.alt = item.attachment.name;
       link.append(img);
     }
@@ -860,7 +863,7 @@ function renderMessages() {
 
 async function loadMessages() {
   selectedDateEl.textContent = dateLabel(selectedDay);
-  const response = await fetch(`/api/messages?day=${encodeURIComponent(selectedDay)}&room=${encodeURIComponent(activeRoom)}`);
+  const response = await fetch(apiUrl(`/api/messages?day=${encodeURIComponent(selectedDay)}&room=${encodeURIComponent(activeRoom)}`));
   currentItems = await response.json();
   renderMessages();
   if (!editingId && !openMenuId && !selectMode) {
@@ -885,7 +888,7 @@ form.addEventListener("submit", async event => {
   if (fileInput.files[0]) data.append("file", fileInput.files[0]);
   sendBtn.disabled = true; sendText.textContent = "Sending…";
   try {
-    const response = await fetch("/api/send", {method:"POST", body:data});
+    const response = await fetch(apiUrl("/api/send"), {method:"POST", body:data});
     const result = await response.json();
     if (!response.ok) throw new Error(result.error || "Could not send message");
     messageInput.value = ""; fileInput.value = ""; filePreview.textContent = "";

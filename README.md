@@ -17,13 +17,13 @@ Messages from everyone are written as one JSON-per-line record in a daily `.txt`
 4. Install packages:
 
    ```powershell
-   pip install -r requirements.txt
+   pip install -r backend/requirements.txt
    ```
 
 5. Start the chat:
 
    ```powershell
-   python app.py
+   python backend/app.py
    ```
 
 6. Open `http://127.0.0.1:5000` in your browser.
@@ -34,11 +34,16 @@ Find this computer's local IPv4 address with `ipconfig`, then open
 `http://YOUR-IP:5000` on the other device. Allow Python through Windows
 Firewall on a trusted private network if Windows asks.
 
+## Project layout
+
+- `frontend/` — `index.html`, `admin.html`, `style.css`, `app.js`
+- `backend/` — `app.py`, `requirements.txt`, `data/`, `uploads/`, `backup/`
+
 ## Storage layout
 
-- `data/chats/2026-11-26.txt` contains all messages sent on that date.
+- `backend/data/chats/2026-11-26.txt` contains all messages sent on that date.
 - Each new date automatically gets its own TXT file.
-- Uploaded files are saved in `uploads/`; the daily TXT record stores the file name and URL.
+- Uploaded files are saved in `backend/uploads/`; `backend/backup/` mirrors `data/` and `uploads/`.
 
 Each TXT line is a JSON record so the app can safely preserve names, message text,
 timestamps and attachment details. This is a local-learning project, not a secure

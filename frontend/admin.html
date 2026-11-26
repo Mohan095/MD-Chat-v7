@@ -176,7 +176,7 @@
           <span id="themeIcon" class="theme-icon" aria-hidden="true"></span>
           <span id="themeLabel">Dark</span>
         </button>
-        <a href="index.html" class="login-btn back-link">Back to Chat</a>
+        <a href="/" class="login-btn back-link">Back to Chat</a>
       </div>
     </header>
 
@@ -184,7 +184,7 @@
       <div class="admin-card">
         <h2>Admin Access Required</h2>
         <p>Please login on the chat page with username <strong>admin</strong> and email <strong>admin@gmail.com</strong>.</p>
-        <a href="index.html" class="file-open">Go to Login</a>
+        <a href="/" class="file-open">Go to Login</a>
       </div>
     </section>
 
@@ -238,7 +238,10 @@
     </section>
   </main>
 
+  <script src="config.js"></script>
   <script>
+    const API_BASE = window.MD_CHAT_API_BASE || "";
+    const apiUrl = p => `${API_BASE}${p}`;
     const MOON_SVG = `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
     const SUN_SVG = `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`;
 
@@ -275,7 +278,7 @@
     }
 
     async function loadAdminData() {
-      const res = await fetch("/api/admin/data");
+      const res = await fetch(apiUrl("/api/admin/data"));
       adminData = await res.json();
       document.getElementById("statUsers").textContent = adminData.users.length;
       document.getElementById("statChats").textContent = adminData.chats.length;
@@ -303,7 +306,7 @@
         .filter(c => !q || c.sender.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || (c.message || "").toLowerCase().includes(q))
         .forEach(c => {
           const tr = document.createElement("tr");
-          const attHtml = c.attachment ? `<a href="${escapeHtml(c.attachment.url)}" target="_blank" rel="noopener">${escapeHtml(c.attachment.name)}</a>` : "—";
+          const attHtml = c.attachment ? `<a href="${escapeHtml(apiUrl(c.attachment.url))}" target="_blank" rel="noopener">${escapeHtml(c.attachment.name)}</a>` : "—";
           tr.innerHTML = `<td>${escapeHtml(c.day)}<br><small>${escapeHtml((c.time || "").slice(11, 16))}</small></td><td><strong>${escapeHtml(c.sender)}</strong></td><td>${escapeHtml(c.email)}</td><td>${escapeHtml(c.message || "—")}${c.edited ? " <em>(edited)</em>" : ""}</td><td>${attHtml}</td>`;
           chatsBody.appendChild(tr);
         });
@@ -318,7 +321,7 @@
           if (f.category === "image") {
             const img = document.createElement("img");
             img.className = "file-thumb";
-            img.src = f.url;
+            img.src = apiUrl(f.url);
             img.alt = f.name;
             card.appendChild(img);
           }
@@ -333,7 +336,7 @@
           meta.textContent = `${f.sender} (${f.email}) • ${f.day}`;
           const link = document.createElement("a");
           link.className = "file-open";
-          link.href = f.url;
+          link.href = apiUrl(f.url);
           link.target = "_blank";
           link.rel = "noopener";
           link.textContent = "Open / Download";

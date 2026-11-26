@@ -1,6 +1,6 @@
-// Set your Render backend URL here after deploying backend/ to Render:
-window.API_BASE = (
-  window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
-)
-  ? "http://127.0.0.1:5000"
-  : "https://YOUR-RENDER-BACKEND.onrender.com";
+// Set your Render backend URL here after deploying backend/ on Render:
+// Example: "https://md-chat-backend.onrender.com"
+window.MD_CHAT_API_BASE =
+  (location.hostname === "127.0.0.1" || location.hostname === "localhost" || location.hostname.startsWith("192.168."))
+    ? ""
+    : "https://YOUR-RENDER-BACKEND.onrender.com";

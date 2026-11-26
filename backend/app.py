@@ -1,19 +1,20 @@
-from flask import Flask, request, jsonify, send_from_directory, abort
+from flask import Flask, render_template, request, jsonify, send_from_directory, abort
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 from pathlib import Path
 import json, os, re, shutil, uuid
 
-app = Flask(__name__)
-ROOT = Path(__file__).resolve().parent
-STORAGE_ROOT = Path(os.environ.get("STORAGE_DIR") or ROOT)
+BACKEND_DIR = Path(__file__).resolve().parent
+ROOT = BACKEND_DIR.parent
+FRONTEND_DIR = ROOT / "frontend"
+app = Flask(__name__, template_folder=str(FRONTEND_DIR), static_folder=str(FRONTEND_DIR), static_url_path="")
+STORAGE_ROOT = Path("/tmp/md_chat") if os.environ.get("VERCEL") else BACKEND_DIR
 DATA_DIR = STORAGE_ROOT / "data" / "chats"
 ROOMS_DIR = DATA_DIR / "rooms"
 UPLOAD_DIR = STORAGE_ROOT / "uploads"
 USERS_FILE = STORAGE_ROOT / "data" / "users.json"
 FRIENDS_FILE = STORAGE_ROOT / "data" / "friends.json"
 BACKUP_DIR = STORAGE_ROOT / "backup"
-
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 ROOMS_DIR.mkdir(parents=True, exist_ok=True)
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
@@ -21,15 +22,6 @@ BACKUP_DIR.mkdir(parents=True, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp", "txt", "pdf", "doc", "docx"}
 app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024  # 20 MB per upload
-
-
-@app.after_request
-def add_cors_headers(response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
-    return response
-
 
 def room_dir(room="everyone"):
     room = (room or "everyone").strip()
@@ -42,16 +34,14 @@ def room_dir(room="everyone"):
     d.mkdir(parents=True, exist_ok=True)
     return d
 
-
 def today_file(room="everyone"):
     return room_dir(room) / f"{datetime.now().strftime('%Y-%m-%d')}.txt"
-
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
-
 def read_day(day, room="everyone"):
+    # Accept only date-shaped filenames to prevent path traversal.
     try:
         datetime.strptime(day, "%Y-%m-%d")
     except ValueError:
@@ -67,7 +57,6 @@ def read_day(day, room="everyone"):
                     continue
     return messages
 
-
 def sync_backup():
     """Mirror data/ and uploads/ into backup/ on startup and after every change."""
     data_src = STORAGE_ROOT / "data"
@@ -80,10 +69,7 @@ def sync_backup():
         encoding="utf-8"
     )
 
-
 sync_backup()
-
-
 def write_day(day, messages, room="everyone"):
     try:
         datetime.strptime(day, "%Y-%m-%d")
@@ -100,7 +86,6 @@ def write_day(day, messages, room="everyone"):
             f.write(json.dumps(item, ensure_ascii=False) + "\n")
     sync_backup()
 
-
 def read_users():
     if not USERS_FILE.exists():
         return []
@@ -108,7 +93,6 @@ def read_users():
         return json.loads(USERS_FILE.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return []
-
 
 def record_user(name, email):
     if not name or not email:
@@ -129,7 +113,6 @@ def record_user(name, email):
     USERS_FILE.write_text(json.dumps(users, ensure_ascii=False, indent=2), encoding="utf-8")
     sync_backup()
 
-
 def file_category(filename, mimetype=""):
     ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
     if ext in {"png", "jpg", "jpeg", "gif", "webp"} or mimetype.startswith("image/"):
@@ -142,11 +125,16 @@ def file_category(filename, mimetype=""):
         return "txt"
     return "other"
 
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    return response
 
 @app.get("/")
-def health():
-    return jsonify(status="ok", app="MD Chat v7 Backend")
-
+def index():
+    return render_template("index.html")
 
 @app.get("/api/days")
 def days():
@@ -154,13 +142,11 @@ def days():
     names = sorted(p.stem for p in room_dir(room).glob("????-??-??.txt") if p.is_file())
     return jsonify(names)
 
-
 @app.get("/api/messages")
 def messages():
     day = request.args.get("day", datetime.now().strftime("%Y-%m-%d"))
     room = request.args.get("room", "everyone")
     return jsonify(read_day(day, room))
-
 
 @app.post("/api/send")
 def send_message():
@@ -204,7 +190,6 @@ def send_message():
     sync_backup()
     return jsonify(item)
 
-
 @app.get("/api/users")
 def list_registered_users():
     exclude = request.args.get("exclude", "").strip().lower()
@@ -214,7 +199,6 @@ def list_registered_users():
         if u.get("name", "").lower() != exclude
     ]
     return jsonify(users)
-
 
 @app.get("/api/friends")
 def get_friends():
@@ -226,7 +210,6 @@ def get_friends():
     except (json.JSONDecodeError, OSError):
         all_friends = {}
     return jsonify(all_friends.get(user, []))
-
 
 @app.post("/api/friends")
 def add_friend():
@@ -268,7 +251,6 @@ def add_friend():
         sync_backup()
     return jsonify(lst)
 
-
 @app.post("/api/login")
 def login_user():
     data = request.get_json(silent=True) or {}
@@ -282,6 +264,9 @@ def login_user():
     is_admin = name.lower() == "admin" and email.lower() == "admin@gmail.com"
     return jsonify(name=name, email=email, is_admin=is_admin)
 
+@app.get("/admin")
+def admin_page():
+    return render_template("admin.html")
 
 @app.get("/api/admin/data")
 def admin_data():
@@ -339,7 +324,6 @@ def admin_data():
     users = sorted(users_map.values(), key=lambda u: u.get("messages", 0), reverse=True)
     return jsonify(users=users, chats=chats, files=files)
 
-
 @app.post("/api/edit")
 def edit_message():
     data = request.get_json(silent=True) or {}
@@ -367,7 +351,6 @@ def edit_message():
             return jsonify(item)
     return jsonify(error="Message not found."), 404
 
-
 @app.post("/api/delete")
 def delete_messages():
     data = request.get_json(silent=True) or {}
@@ -381,16 +364,13 @@ def delete_messages():
     write_day(day, remaining, room)
     return jsonify(deleted=len(messages) - len(remaining))
 
-
 @app.get("/uploads/<path:filename>")
 def uploaded_file(filename):
     return send_from_directory(UPLOAD_DIR, filename, as_attachment=False)
 
-
 @app.errorhandler(413)
 def too_large(_):
     return jsonify(error="File is too large. Maximum size is 20 MB."), 413
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
