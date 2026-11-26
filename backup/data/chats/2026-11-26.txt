@@ -1,1 +1,0 @@
-{"id": "30eaa62ab38c4be0a10ecbb558e3f1ce", "sender": "admin", "email": "admin@gmail.com", "message": "", "time": "2026-11-26T21:34:23", "attachment": {"name": "10b18072ee6546ff8b21b661f01b48dd_black-cover.jpg", "url": "/uploads/30c68d6e342e454497aadd311a9e2934_10b18072ee6546ff8b21b661f01b48dd_black-cover.jpg", "type": "image/jpeg"}}

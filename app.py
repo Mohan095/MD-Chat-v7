@@ -2,16 +2,17 @@ from flask import Flask, render_template, request, jsonify, send_from_directory,
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 from pathlib import Path
-import json, re, shutil, uuid
+import json, os, re, shutil, uuid
 
 app = Flask(__name__)
 ROOT = Path(__file__).resolve().parent
-DATA_DIR = ROOT / "data" / "chats"
+STORAGE_ROOT = Path("/tmp/md_chat") if os.environ.get("VERCEL") else ROOT
+DATA_DIR = STORAGE_ROOT / "data" / "chats"
 ROOMS_DIR = DATA_DIR / "rooms"
-UPLOAD_DIR = ROOT / "uploads"
-USERS_FILE = ROOT / "data" / "users.json"
-FRIENDS_FILE = ROOT / "data" / "friends.json"
-BACKUP_DIR = ROOT / "backup"
+UPLOAD_DIR = STORAGE_ROOT / "uploads"
+USERS_FILE = STORAGE_ROOT / "data" / "users.json"
+FRIENDS_FILE = STORAGE_ROOT / "data" / "friends.json"
+BACKUP_DIR = STORAGE_ROOT / "backup"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 ROOMS_DIR.mkdir(parents=True, exist_ok=True)
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
@@ -56,7 +57,7 @@ def read_day(day, room="everyone"):
 
 def sync_backup():
     """Mirror data/ and uploads/ into backup/ on startup and after every change."""
-    data_src = ROOT / "data"
+    data_src = STORAGE_ROOT / "data"
     if data_src.exists():
         shutil.copytree(data_src, BACKUP_DIR / "data", dirs_exist_ok=True)
     if UPLOAD_DIR.exists():
